@@ -1,0 +1,76 @@
+package skopanko.trainingapi.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.util.Date;
+import java.util.List;
+
+@Data
+@Entity
+public class Entry {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "exercise_id")
+    private Exercise exercise;
+
+    @OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Set> sets;
+
+    private double mainWeight;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
+}
+package skopanko.trainingapi.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+@Entity
+public class Exercise {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private Date date;
+    private double weight;
+    private int reps;
+    private double oneRM;
+    private String notes;
+
+    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Entry> entries;
+
+    @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Set> sets;
+}
+package skopanko.trainingapi.entities;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class Set {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "exercise_id")
+    private Exercise exercise;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "entry_id")
+    private Entry entry;
+    private double weight;
+    private int reps;
+    private int rir;
+    private double oneRM;
+}

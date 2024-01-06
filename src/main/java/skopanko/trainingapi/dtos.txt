@@ -1,0 +1,48 @@
+package skopanko.trainingapi.dto;
+
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+public class EntryDTO {
+    private Long id;
+    private Long exerciseId;
+    private double mainWeight;
+    private Date date;
+}
+
+package skopanko.trainingapi.dto;
+
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+public class ExerciseDTO {
+    private Long id;
+    private String name;
+    private Date date;
+    private double weight;
+    private double reps;
+    private double oneRM;
+    private String notes;
+}
+
+package skopanko.trainingapi.dto;
+
+import lombok.Data;
+
+@Data
+public class SetDTO {
+    private Long id;
+    private Long entryId;
+    private Long exerciseId;
+    private double weight;
+    private int reps;
+    private int rir;
+    private double oneRM;
+}
+

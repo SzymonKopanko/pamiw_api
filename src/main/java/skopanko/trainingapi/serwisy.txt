@@ -1,0 +1,187 @@
+package skopanko.trainingapi.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import skopanko.trainingapi.dto.EntryDTO;
+import skopanko.trainingapi.entities.Entry;
+import skopanko.trainingapi.entities.Set;
+import skopanko.trainingapi.repositories.EntryRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Transactional
+public class EntryService {
+
+    @Autowired
+    private EntryRepository entryRepository;
+
+    public EntryDTO convertToDTO(Entry entry) {
+        EntryDTO dto = new EntryDTO();
+        dto.setId(entry.getId());
+        dto.setExerciseId(entry.getExercise().getId());
+        dto.setMainWeight(entry.getMainWeight());
+        dto.setDate(entry.getDate());
+        return dto;
+    }
+
+    public List<Entry> getAllEntries() {
+        return entryRepository.findAll();
+    }
+
+    public Optional<Entry> getEntryById(Long entryId) {
+        return entryRepository.findById(entryId);
+    }
+
+    public Entry saveEntry(Entry entry) {
+        return entryRepository.save(entry);
+    }
+
+    public Entry updateEntry(Long entryId, Entry updatedEntry) {
+        Optional<Entry> existingEntryOptional = entryRepository.findById(entryId);
+        if (existingEntryOptional.isPresent()) {
+            Entry existingEntry = existingEntryOptional.get();
+            // Update fields as needed
+            existingEntry.setMainWeight(updatedEntry.getMainWeight());
+            existingEntry.setDate(updatedEntry.getDate());
+            // Update any other fields as needed
+            return entryRepository.save(existingEntry);
+        } else {
+            // Handle the case where the entry with the given ID is not found
+            return null;
+        }
+    }
+
+    public void deleteEntry(Long entryId) {
+        entryRepository.deleteById(entryId);
+    }
+
+    public List<Set> getSetsByEntryId(Long entryId) {
+        Optional<Entry> entryOptional = entryRepository.findById(entryId);
+        return entryOptional.map(Entry::getSets).orElse(null);
+    }
+}
+package skopanko.trainingapi.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import skopanko.trainingapi.dto.ExerciseDTO;
+import skopanko.trainingapi.entities.Entry;
+import skopanko.trainingapi.entities.Exercise;
+import skopanko.trainingapi.entities.Set;
+import skopanko.trainingapi.repositories.ExerciseRepository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class ExerciseService {
+
+    @Autowired
+    private ExerciseRepository exerciseRepository;
+
+    public ExerciseDTO convertToDTO(Exercise exercise) {
+        ExerciseDTO dto = new ExerciseDTO();
+        dto.setId(exercise.getId());
+        dto.setName(exercise.getName());
+        dto.setDate(exercise.getDate());
+        dto.setWeight(exercise.getWeight());
+        dto.setReps(exercise.getReps());
+        dto.setOneRM(exercise.getOneRM());
+        dto.setNotes(exercise.getNotes());
+        return dto;
+    }
+
+    public List<Exercise> getAllExercises() {
+        return exerciseRepository.findAll();
+    }
+
+    public Optional<Exercise> getExerciseById(Long exerciseId) {
+        return exerciseRepository.findById(exerciseId);
+    }
+
+    public Exercise saveExercise(Exercise exercise) {
+        return exerciseRepository.save(exercise);
+    }
+
+    public Exercise updateExercise(Long exerciseId, Exercise updatedExercise) {
+        Optional<Exercise> existingExerciseOptional = exerciseRepository.findById(exerciseId);
+        if (existingExerciseOptional.isPresent()) {
+            Exercise existingExercise = existingExerciseOptional.get();
+            existingExercise.setDate(updatedExercise.getDate());
+            existingExercise.setName(updatedExercise.getName());
+            existingExercise.setNotes(updatedExercise.getNotes());
+            return exerciseRepository.save(existingExercise);
+        } else {
+            // Handle the case where the exercise with the given ID is not found
+            return null;
+        }
+    }
+
+    public void deleteExercise(Long exerciseId) {
+        exerciseRepository.deleteById(exerciseId);
+    }
+
+    public List<Entry> getEntriesByExerciseId(Long exerciseId) {
+        Optional<Exercise> exerciseOptional = exerciseRepository.findById(exerciseId);
+        return exerciseOptional.map(Exercise::getEntries).orElse(null);
+    }
+
+    public List<Set> getSetsByExerciseId(Long exerciseId) {
+        Optional<Exercise> exerciseOptional = exerciseRepository.findById(exerciseId);
+        return exerciseOptional.map(Exercise::getSets).orElse(null);
+    }
+}
+package skopanko.trainingapi.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import skopanko.trainingapi.entities.Set;
+import skopanko.trainingapi.repositories.SetRepository;
+
+import java.util.List;
+import java.util.Optional;
+import skopanko.trainingapi.dto.SetDTO;
+
+@Service
+@Transactional
+public class SetService {
+
+    @Autowired
+    private SetRepository setRepository;
+
+
+    public SetDTO convertToDTO(Set set) {
+        SetDTO dto = new SetDTO();
+        dto.setId(set.getId());
+        dto.setExerciseId(set.getExercise().getId());
+        dto.setEntryId(set.getEntry().getId());
+        dto.setReps(set.getReps());
+        dto.setWeight(set.getWeight());
+        dto.setRir(set.getRir());
+        dto.setOneRM(set.getOneRM());
+        return dto;
+    }
+
+    public List<Set> getAllSets() {
+        return setRepository.findAll();
+    }
+
+    public Optional<Set> getSetById(Long setId) {
+        return setRepository.findById(setId);
+    }
+
+    public Set saveSet(Set set) {
+        return setRepository.save(set);
+    }
+
+    public void deleteSet(Long setId) {
+        setRepository.deleteById(setId);
+    }
+}
