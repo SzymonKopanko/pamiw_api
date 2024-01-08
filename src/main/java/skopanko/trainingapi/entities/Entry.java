@@ -1,5 +1,6 @@
 package skopanko.trainingapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.Date;
@@ -16,7 +17,8 @@ public class Entry {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
-    @OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Set> sets;
 
     private double mainWeight;

@@ -1,9 +1,10 @@
 package skopanko.trainingapi.services;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skopanko.trainingapi.dto.ExerciseDTO;
 import skopanko.trainingapi.entities.Entry;
 import skopanko.trainingapi.entities.Exercise;
 import skopanko.trainingapi.entities.Set;
@@ -19,17 +20,9 @@ public class ExerciseService {
     @Autowired
     private ExerciseRepository exerciseRepository;
 
-    public ExerciseDTO convertToDTO(Exercise exercise) {
-        ExerciseDTO dto = new ExerciseDTO();
-        dto.setId(exercise.getId());
-        dto.setName(exercise.getName());
-        dto.setDate(exercise.getDate());
-        dto.setWeight(exercise.getWeight());
-        dto.setReps(exercise.getReps());
-        dto.setOneRM(exercise.getOneRM());
-        dto.setNotes(exercise.getNotes());
-        return dto;
-    }
+    @Autowired
+    private ModelMapper modelMapper;
+
 
     public List<Exercise> getAllExercises() {
         return exerciseRepository.findAll();

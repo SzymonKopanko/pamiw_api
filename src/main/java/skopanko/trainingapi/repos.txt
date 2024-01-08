@@ -18,10 +18,6 @@ package skopanko.trainingapi.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import skopanko.trainingapi.entities.Set;
 
-import java.util.List;
-
 public interface SetRepository extends JpaRepository<Set, Long> {
-    List<Set> findAllByEntry_Id(Long entryId);
 
-    List<Set> findAllByExercise_Id(Long exerciseId);
 }

@@ -3,7 +3,6 @@ package skopanko.trainingapi.dto;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class EntryDTO {
@@ -18,7 +17,6 @@ package skopanko.trainingapi.dto;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class ExerciseDTO {

@@ -1,5 +1,6 @@
 package skopanko.trainingapi.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +19,14 @@ public class EntryService {
     @Autowired
     private EntryRepository entryRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public EntryDTO convertToDTO(Entry entry) {
-        EntryDTO dto = new EntryDTO();
+        EntryDTO dto = modelMapper.map(entry, EntryDTO.class);
         dto.setId(entry.getId());
         dto.setExerciseId(entry.getExercise().getId());
+        System.out.println("exerciseid: " + dto.getExerciseId());
         dto.setMainWeight(entry.getMainWeight());
         dto.setDate(entry.getDate());
         return dto;
@@ -43,13 +48,10 @@ public class EntryService {
         Optional<Entry> existingEntryOptional = entryRepository.findById(entryId);
         if (existingEntryOptional.isPresent()) {
             Entry existingEntry = existingEntryOptional.get();
-            // Update fields as needed
             existingEntry.setMainWeight(updatedEntry.getMainWeight());
             existingEntry.setDate(updatedEntry.getDate());
-            // Update any other fields as needed
             return entryRepository.save(existingEntry);
         } else {
-            // Handle the case where the entry with the given ID is not found
             return null;
         }
     }
@@ -65,6 +67,7 @@ public class EntryService {
 }
 package skopanko.trainingapi.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +79,6 @@ import skopanko.trainingapi.repositories.ExerciseRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -85,8 +87,11 @@ public class ExerciseService {
     @Autowired
     private ExerciseRepository exerciseRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public ExerciseDTO convertToDTO(Exercise exercise) {
-        ExerciseDTO dto = new ExerciseDTO();
+        ExerciseDTO dto = modelMapper.map(exercise, ExerciseDTO.class);
         dto.setId(exercise.getId());
         dto.setName(exercise.getName());
         dto.setDate(exercise.getDate());
@@ -139,6 +144,7 @@ public class ExerciseService {
 }
 package skopanko.trainingapi.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,9 +162,11 @@ public class SetService {
     @Autowired
     private SetRepository setRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
 
     public SetDTO convertToDTO(Set set) {
-        SetDTO dto = new SetDTO();
+        SetDTO dto = modelMapper.map(set, SetDTO.class);
         dto.setId(set.getId());
         dto.setExerciseId(set.getExercise().getId());
         dto.setEntryId(set.getEntry().getId());

@@ -1,6 +1,8 @@
 package skopanko.trainingapi.controllers;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import skopanko.trainingapi.dto.EntryDTO;
@@ -28,6 +30,9 @@ public class EntryController {
     @Autowired
     private SetService setService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @GetMapping
     public List<EntryDTO> getAllEntries() {
         List<Entry> entries = entryService.getAllEntries();
@@ -45,6 +50,7 @@ public class EntryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EntryDTO saveEntry(@RequestBody EntryDTO entryDTO) {
+        System.out.println("\n\n\njestem w save entry!!!!!");
         Entry entry = convertToEntity(entryDTO);
         Entry savedEntry = entryService.saveEntry(entry);
         return entryService.convertToDTO(savedEntry);
@@ -72,22 +78,27 @@ public class EntryController {
     }
 
     private Entry convertToEntity(EntryDTO entryDTO) {
-        Entry entry = new Entry();
+        Entry entry = modelMapper.map(entryDTO, Entry.class);
         entry.setId(entryDTO.getId());
-
-        Exercise exercise = exerciseService.getExerciseById(entryDTO.getExerciseId()).orElse(null);
+        System.out.println("\n\n\n\n\n(Entry.convertToEntity)exerciseId: " + entryDTO.getExerciseId());
+        Long exerciseId = entryDTO.getExerciseId();
+        Exercise exercise = exerciseService.getExerciseById(exerciseId).orElse(null);
         entry.setExercise(exercise);
-
-        entry.setMainWeight(entryDTO.getMainWeight());
+        if(exerciseId == null){
+            entry.setMainWeight(666.6);
+        }
+        else{
+            entry.setMainWeight(6969.0);
+        }
         entry.setDate(entryDTO.getDate());
         List<Set> sets = entryService.getSetsByEntryId(entryDTO.getId());
         entry.setSets(sets);
-
         return entry;
     }
 }
 package skopanko.trainingapi.controllers;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -116,6 +127,9 @@ public class ExerciseController {
 
     @Autowired
     private SetService setService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @GetMapping
     public List<ExerciseDTO> getAllExercises() {
@@ -169,7 +183,7 @@ public class ExerciseController {
     }
 
     private Exercise convertToEntity(ExerciseDTO exerciseDTO) {
-        Exercise exercise = new Exercise();
+        Exercise exercise = modelMapper.map(exerciseDTO, Exercise.class);
         exercise.setId(exerciseDTO.getId());
         exercise.setDate(exerciseDTO.getDate());
         exercise.setName(exerciseDTO.getName());
@@ -182,40 +196,73 @@ public class ExerciseController {
 }
 package skopanko.trainingapi.controllers;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import skopanko.trainingapi.dto.SetDTO;
 import skopanko.trainingapi.entities.Set;
+import skopanko.trainingapi.services.EntryService;
+import skopanko.trainingapi.services.ExerciseService;
 import skopanko.trainingapi.services.SetService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/sets")
 public class SetController {
 
     @Autowired
+    private EntryService entryService;
+
+    @Autowired
+    private ExerciseService exerciseService;
+
+    @Autowired
     private SetService setService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @GetMapping
-    public List<Set> getAllSets() {
-        return setService.getAllSets();
+    public List<SetDTO> getAllSets() {
+        List<Set> sets = setService.getAllSets();
+        return sets.stream()
+                .map(setService::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{setId}")
-    public Set getSetById(@PathVariable Long setId) {
-        return setService.getSetById(setId).orElse(null);
+    public SetDTO getSetById(@PathVariable Long setId) {
+        Set set = setService.getSetById(setId).orElse(null);
+        return set != null ? setService.convertToDTO(set) : null;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Set saveSet(@RequestBody Set set) {
-        return setService.saveSet(set);
+    public SetDTO saveSet(@RequestBody SetDTO setDTO) {
+        Set set = convertToEntity(setDTO);
+        Set savedSet = setService.saveSet(set);
+        return setService.convertToDTO(savedSet);
     }
 
     @DeleteMapping("/{setId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSet(@PathVariable Long setId) {
         setService.deleteSet(setId);
+    }
+
+    private Set convertToEntity(SetDTO setDTO) {
+        Set set = modelMapper.map(setDTO, Set.class);
+        set.setId(setDTO.getId());
+        set.setExercise(exerciseService.getExerciseById(setDTO.getExerciseId()).orElse(null));
+        set.setEntry(entryService.getEntryById(setDTO.getEntryId()).orElse(null));
+        set.setWeight(setDTO.getWeight());
+        set.setReps(setDTO.getReps());
+        set.setRir(setDTO.getRir());
+        set.setOneRM(setDTO.getOneRM());
+
+        return set;
     }
 }

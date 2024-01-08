@@ -1,5 +1,7 @@
 package skopanko.trainingapi.services;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,7 +10,6 @@ import skopanko.trainingapi.repositories.SetRepository;
 
 import java.util.List;
 import java.util.Optional;
-import skopanko.trainingapi.dto.SetDTO;
 
 @Service
 @Transactional
@@ -17,18 +18,9 @@ public class SetService {
     @Autowired
     private SetRepository setRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
 
-    public SetDTO convertToDTO(Set set) {
-        SetDTO dto = new SetDTO();
-        dto.setId(set.getId());
-        dto.setExerciseId(set.getExercise().getId());
-        dto.setEntryId(set.getEntry().getId());
-        dto.setReps(set.getReps());
-        dto.setWeight(set.getWeight());
-        dto.setRir(set.getRir());
-        dto.setOneRM(set.getOneRM());
-        return dto;
-    }
 
     public List<Set> getAllSets() {
         return setRepository.findAll();

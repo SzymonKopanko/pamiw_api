@@ -1,11 +1,10 @@
 package skopanko.trainingapi.controllers;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import skopanko.trainingapi.dto.EntryDTO;
-import skopanko.trainingapi.dto.ExerciseDTO;
-import skopanko.trainingapi.dto.SetDTO;
 import skopanko.trainingapi.entities.Entry;
 import skopanko.trainingapi.entities.Exercise;
 import skopanko.trainingapi.entities.Set;
@@ -29,33 +28,28 @@ public class ExerciseController {
     @Autowired
     private SetService setService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @GetMapping
-    public List<ExerciseDTO> getAllExercises() {
-        List<Exercise> exercises = exerciseService.getAllExercises();
-        return exercises.stream()
-                .map(exerciseService::convertToDTO)
-                .collect(Collectors.toList());
+    public List<Exercise> getAllExercises() {
+        return exerciseService.getAllExercises();
     }
 
     @GetMapping("/{exerciseId}")
-    public ExerciseDTO getExerciseById(@PathVariable Long exerciseId) {
-        Exercise exercise = exerciseService.getExerciseById(exerciseId).orElse(null);
-        return exercise != null ? exerciseService.convertToDTO(exercise) : null;
+    public Exercise getExerciseById(@PathVariable Long exerciseId) {
+        return exerciseService.getExerciseById(exerciseId).orElse(null);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ExerciseDTO saveExercise(@RequestBody ExerciseDTO exerciseDTO) {
-        Exercise exercise = convertToEntity(exerciseDTO);
-        Exercise savedExercise = exerciseService.saveExercise(exercise);
-        return exerciseService.convertToDTO(savedExercise);
+    public Exercise saveExercise(@RequestBody Exercise exercise) {
+        return exerciseService.saveExercise(exercise);
     }
 
     @PutMapping("/{exerciseId}")
-    public ExerciseDTO updateExercise(@PathVariable Long exerciseId, @RequestBody ExerciseDTO updatedExerciseDTO) {
-        Exercise updatedExercise = convertToEntity(updatedExerciseDTO);
-        Exercise resultExercise = exerciseService.updateExercise(exerciseId, updatedExercise);
-        return resultExercise != null ? exerciseService.convertToDTO(resultExercise) : null;
+    public Exercise updateExercise(@PathVariable Long exerciseId, @RequestBody Exercise updatedExercise) {
+        return exerciseService.updateExercise(exerciseId, updatedExercise);
     }
 
     @DeleteMapping("/{exerciseId}")
@@ -65,30 +59,12 @@ public class ExerciseController {
     }
 
     @GetMapping("/{exerciseId}/entries")
-    public List<EntryDTO> getEntriesByExerciseId(@PathVariable Long exerciseId) {
-        List<Entry> entries = exerciseService.getEntriesByExerciseId(exerciseId);
-        return entries.stream()
-                .map(entryService::convertToDTO)
-                .collect(Collectors.toList());
+    public List<Entry> getEntriesByExerciseId(@PathVariable Long exerciseId) {
+        return exerciseService.getEntriesByExerciseId(exerciseId);
     }
 
     @GetMapping("/{exerciseId}/sets")
-    public List<SetDTO> getSetsByExerciseId(@PathVariable Long exerciseId) {
-        List<Set> sets = exerciseService.getSetsByExerciseId(exerciseId);
-        return sets.stream()
-                .map(setService::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    private Exercise convertToEntity(ExerciseDTO exerciseDTO) {
-        Exercise exercise = new Exercise();
-        exercise.setId(exerciseDTO.getId());
-        exercise.setDate(exerciseDTO.getDate());
-        exercise.setName(exerciseDTO.getName());
-        exercise.setNotes(exerciseDTO.getNotes());
-        List<Entry> entries = exerciseService.getEntriesByExerciseId(exerciseDTO.getId());
-        exercise.setEntries(entries);
-
-        return exercise;
+    public List<Set> getSetsByExerciseId(@PathVariable Long exerciseId) {
+        return exerciseService.getSetsByExerciseId(exerciseId);
     }
 }
